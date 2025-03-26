@@ -43,16 +43,16 @@
                 <label for="right_type">ประเภทสิทธิ์</label>
                 <select id="right_type" required>
                     <option value="">-- เลือก --</option>
-                    <option value="M">M (ทั่วไป)</option>
-                    <option value="CA">CA (ผู้สูงอายุ)</option>
-                    <option value="CI">CI (เด็ก)</option>
-                    <option value="C">C (อุบัติเหตุ)</option>
-                    <option value="G">G (รัฐวิสาหกิจ)</option>
-                    <option value="GS">GS (ประกันสังคม)</option>
-                    <option value="IA">IA (ต่างชาติ)</option>
-                    <option value="I">I (ประกันภัย)</option>
-                    <option value="IC">IC (อุบัติเหตุจราจร)</option>
-                    <option value="UCEP">UCEP (เร่งด่วน)</option>
+                    <option value="M">M</option>
+                    <option value="CA">CA</option>
+                    <option value="CI">CI</option>
+                    <option value="C">C</option>
+                    <option value="G">G</option>
+                    <option value="GS">GS</option>
+                    <option value="IA">IA</option>
+                    <option value="I">I</option>
+                    <option value="IC">IC</option>
+                    <option value="UCEP">UCEP</option>
                 </select>
             </div>
             
@@ -76,13 +76,35 @@
                 <div style="display: flex; gap: 5px;">
                     <select id="symptoms_select" style="flex: 1;">
                         <option value="">-- เลือกอาการ --</option>
-                        <option value="ไข้">ไข้</option>
-                        <option value="ไอ">ไอ</option>
-                        <option value="เจ็บคอ">เจ็บคอ</option>
-                        <option value="ปวดศีรษะ">ปวดศีรษะ</option>
+                        <option value="F/U">F/U</option>
+                        <option value="อุบัติเหตุอื่นๆ">อุุบัติเหตุอื่นๆ</option>
+                        <option value="อุบัติเหตุจราจร">อุบัติเหตุจราจร</option>
+                        <option value="D/S">D/S</option>
+                        <option value="ตัดไหม">ตัดไหม</option>
                     </select>
-                    <input type="text" id="symptoms_custom" placeholder="หรือพิมพ์อาการเอง" style="flex: 1;">
+                    <input type="text" id="symptoms_custom" placeholder="ระบุ" style="flex: 1;">
                 </div>
+                
+            <div class="form-group">
+                <label for="procedure">หัตถการ</label>
+                <select id="procedure" required>
+                    <option value="">-- เลือก --</option>
+                    <option value="มี">มีหัตถการ</option>
+                    <option value="ไม่มี">ไม่มีหัตถการ</option>
+                    </select>
+            </div>
+                
+            <div class="form-group">
+                <label for="discharge type">จำหน่ายโดย</label>
+                <select id="discharge_type" required>
+                    <option value="">-- เลือก --</option>
+                    <option value="กลับบ้าน">กลับบ้าน</option>
+                    <option value="Admit">Admit</option>
+                    <option value="Refer">Refer</option>
+                    <option value="Dead">Dead</option>
+                    </select>
+            </div>
+                
             </div>
             
             <button type="submit" style="grid-column: span 3;">บันทึกข้อมูล</button>
@@ -94,14 +116,17 @@
         <thead>
             <tr>
                 <th>ลำดับ</th>
+                <th>วันที่</th>
+                <th>เวลา</th>
                 <th>HN</th>
                 <th>VN</th>
-                <th>เวลา</th>
                 <th>สิทธิ์</th>
-                <th>ชื่อ-สกุล</th>
+                <th>ชื่อ</th>
+                <th>สกุล</th>
                 <th>อายุ</th>
                 <th>อาการ</th>
-                <th>จัดการ</th>
+                <th>หัตถการ</th>
+                <th>Discharge Type</th>
             </tr>
         </thead>
         <tbody></tbody>
