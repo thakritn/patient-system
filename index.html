@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ระบบบันทึกผู้รับบริการ</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Kanit', sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .form-container { background: #f5f5f5; padding: 20px; border-radius: 8px; }
+        form { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { margin-bottom: 5px; font-weight: 500; }
+        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #4CAF50; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .action-btns { display: flex; gap: 5px; }
+        .btn-edit { background: #2196F3; color: white; padding: 5px 10px; border-radius: 3px; }
+        .btn-delete { background: #f44336; color: white; padding: 5px 10px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>บันทึกข้อมูลผู้รับบริการ</h1>
+    
+    <div class="form-container">
+        <form id="patientForm">
+            <div class="form-group">
+                <label for="hn">HN</label>
+                <input type="text" id="hn" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="vn">VN</label>
+                <input type="text" id="vn" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="record_time">เวลา</label>
+                <input type="time" id="record_time" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="right_type">ประเภทสิทธิ์</label>
+                <select id="right_type" required>
+                    <option value="">-- เลือก --</option>
+                    <option value="M">M (ทั่วไป)</option>
+                    <option value="CA">CA (ผู้สูงอายุ)</option>
+                    <option value="CI">CI (เด็ก)</option>
+                    <option value="C">C (อุบัติเหตุ)</option>
+                    <option value="G">G (รัฐวิสาหกิจ)</option>
+                    <option value="GS">GS (ประกันสังคม)</option>
+                    <option value="IA">IA (ต่างชาติ)</option>
+                    <option value="I">I (ประกันภัย)</option>
+                    <option value="IC">IC (อุบัติเหตุจราจร)</option>
+                    <option value="UCEP">UCEP (เร่งด่วน)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="first_name">ชื่อ</label>
+                <input type="text" id="first_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="last_name">สกุล</label>
+                <input type="text" id="last_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="age">อายุ</label>
+                <input type="number" id="age" min="0" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="symptoms">อาการ</label>
+                <div style="display: flex; gap: 5px;">
+                    <select id="symptoms_select" style="flex: 1;">
+                        <option value="">-- เลือกอาการ --</option>
+                        <option value="ไข้">ไข้</option>
+                        <option value="ไอ">ไอ</option>
+                        <option value="เจ็บคอ">เจ็บคอ</option>
+                        <option value="ปวดศีรษะ">ปวดศีรษะ</option>
+                    </select>
+                    <input type="text" id="symptoms_custom" placeholder="หรือพิมพ์อาการเอง" style="flex: 1;">
+                </div>
+            </div>
+            
+            <button type="submit" style="grid-column: span 3;">บันทึกข้อมูล</button>
+        </form>
+    </div>
+
+    <h2>รายการผู้รับบริการ</h2>
+    <table id="patientTable">
+        <thead>
+            <tr>
+                <th>ลำดับ</th>
+                <th>HN</th>
+                <th>VN</th>
+                <th>เวลา</th>
+                <th>สิทธิ์</th>
+                <th>ชื่อ-สกุล</th>
+                <th>อายุ</th>
+                <th>อาการ</th>
+                <th>จัดการ</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        // ตั้งค่า Supabase
+        const supabaseUrl = 'https://anfbilyegqewzavuohtx.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFuZmJpbHllZ3Fld3phdnVvaHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI5NzEwMjgsImV4cCI6MjA1ODU0NzAyOH0.LXrDtVmIpFFucKkgRi2faybji8njRxUlygA0TLZcMAk'
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey)
+
+        // ฟังก์ชันบันทึกข้อมูล
+        document.getElementById('patientForm').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            
+            // ตรวจสอบอาการ
+            const symptomsSelect = document.getElementById('symptoms_select')
+            const symptomsCustom = document.getElementById('symptoms_custom')
+            const symptoms = symptomsSelect.value || symptomsCustom.value
+            
+            if (!symptoms) {
+                alert('กรุณาเลือกหรือระบุอาการ')
+                return
+            }
+
+            // บันทึกข้อมูล
+            const { error } = await supabase
+                .from('patient_records')
+                .insert([{
+                    hn: document.getElementById('hn').value,
+                    vn: document.getElementById('vn').value,
+                    record_time: document.getElementById('record_time').value,
+                    right_type: document.getElementById('right_type').value,
+                    first_name: document.getElementById('first_name').value,
+                    last_name: document.getElementById('last_name').value,
+                    age: document.getElementById('age').value,
+                    symptoms: symptoms
+                }])
+            
+            if (error) {
+                alert('เกิดข้อผิดพลาด: ' + error.message)
+            } else {
+                alert('บันทึกข้อมูลสำเร็จ')
+                document.getElementById('patientForm').reset()
+                loadPatients()
+            }
+        })
+
+        // โหลดข้อมูลผู้ป่วย
+        async function loadPatients() {
+            const { data, error } = await supabase
+                .from('patient_records')
+                .select('*')
+                .order('created_at', { ascending: false })
+            
+            if (!error) {
+                const tbody = document.querySelector('#patientTable tbody')
+                tbody.innerHTML = data.map((patient, index) => `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${patient.hn}</td>
+                        <td>${patient.vn}</td>
+                        <td>${patient.record_time}</td>
+                        <td>${patient.right_type}</td>
+                        <td>${patient.first_name} ${patient.last_name}</td>
+                        <td>${patient.age}</td>
+                        <td>${patient.symptoms}</td>
+                        <td class="action-btns">
+                            <button class="btn-edit" onclick="editPatient(${patient.id})">แก้ไข</button>
+                            <button class="btn-delete" onclick="deletePatient(${patient.id})">ลบ</button>
+                        </td>
+                    </tr>
+                `).join('')
+            }
+        }
+
+        // แก้ไขข้อมูล
+        async function editPatient(id) {
+            const { data } = await supabase
+                .from('patient_records')
+                .select('*')
+                .eq('id', id)
+                .single()
+            
+            document.getElementById('hn').value = data.hn
+            document.getElementById('vn').value = data.vn
+            document.getElementById('record_time').value = data.record_time
+            document.getElementById('right_type').value = data.right_type
+            document.getElementById('first_name').value = data.first_name
+            document.getElementById('last_name').value = data.last_name
+            document.getElementById('age').value = data.age
+            
+            // ตรวจสอบอาการ
+            const symptomsSelect = document.getElementById('symptoms_select')
+            const optionExists = Array.from(symptomsSelect.options).some(opt => opt.value === data.symptoms)
+            
+            if (optionExists) {
+                symptomsSelect.value = data.symptoms
+                document.getElementById('symptoms_custom').value = ''
+            } else {
+                symptomsSelect.value = ''
+                document.getElementById('symptoms_custom').value = data.symptoms
+            }
+            
+            // เปลี่ยนปุ่มเป็นอัปเดต
+            const form = document.getElementById('patientForm')
+            form.onsubmit = async (e) => {
+                e.preventDefault()
+                await updatePatient(id)
+            }
+            form.querySelector('button').textContent = 'อัปเดตข้อมูล'
+        }
+
+        // อัปเดตข้อมูล
+        async function updatePatient(id) {
+            const symptoms = document.getElementById('symptoms_select').value || 
+                            document.getElementById('symptoms_custom').value
+            
+            const { error } = await supabase
+                .from('patient_records')
+                .update({
+                    hn: document.getElementById('hn').value,
+                    vn: document.getElementById('vn').value,
+                    record_time: document.getElementById('record_time').value,
+                    right_type: document.getElementById('right_type').value,
+                    first_name: document.getElementById('first_name').value,
+                    last_name: document.getElementById('last_name').value,
+                    age: document.getElementById('age').value,
+                    symptoms: symptoms
+                })
+                .eq('id', id)
+            
+            if (error) {
+                alert('เกิดข้อผิดพลาด: ' + error.message)
+            } else {
+                alert('อัปเดตข้อมูลสำเร็จ')
+                document.getElementById('patientForm').reset()
+                const form = document.getElementById('patientForm')
+                form.onsubmit = async (e) => await submitForm(e)
+                form.querySelector('button').textContent = 'บันทึกข้อมูล'
+                loadPatients()
+            }
+        }
+
+        // ลบข้อมูล
+        async function deletePatient(id) {
+            if (confirm('แน่ใจว่าต้องการลบข้อมูลนี้?')) {
+                const { error } = await supabase
+                    .from('patient_records')
+                    .delete()
+                    .eq('id', id)
+                
+                if (error) {
+                    alert('เกิดข้อผิดพลาด: ' + error.message)
+                } else {
+                    alert('ลบข้อมูลสำเร็จ')
+                    loadPatients()
+                }
+            }
+        }
+
+        // โหลดข้อมูลครั้งแรก
+        loadPatients()
+    </script>
+</body>
+</html>
