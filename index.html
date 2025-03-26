@@ -25,6 +25,16 @@
     <div class="form-container">
         <form id="patientForm">
             <div class="form-group">
+                <label for="record_date">วันที่</label>
+                <input type="date" id="record_date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="record_time">เวลา</label>
+                <input type="time" id="record_time" required>
+            </div>
+            
+            <div class="form-group">
                 <label for="hn">HN</label>
                 <input type="text" id="hn" required>
             </div>
@@ -33,12 +43,7 @@
                 <label for="vn">VN</label>
                 <input type="text" id="vn" required>
             </div>
-            
-            <div class="form-group">
-                <label for="record_time">เวลา</label>
-                <input type="time" id="record_time" required>
-            </div>
-            
+                      
             <div class="form-group">
                 <label for="right_type">ประเภทสิทธิ์</label>
                 <select id="right_type" required>
@@ -85,9 +90,9 @@
                     <input type="text" id="symptoms_custom" placeholder="ระบุ" style="flex: 1;">
                 </div>
 
-                <div class="form-group">
-                <label for="Discharge Type">จำหน่ายโดย</label>
-                <select id="Discharge Type" required>
+            <div class="form-group">
+                <label for="discharge type">จำหน่ายโดย</label>
+                <select id="discharge_type" required>
                     <option value="">-- เลือก --</option>
                     <option value="กลับบ้าน">กลับบ้าน</option>
                     <option value="Admit">Admit</option>
@@ -112,15 +117,12 @@
                 <th>HN</th>
                 <th>VN</th>
                 <th>สิทธิ์</th>
-                <th></th>
+                <th>ชื่อ</th>
                 <th>สกุล</th>
                 <th>อายุ</th>
                 <th>อาการ</th>
                 <th>มีหัตถการ/ไม่มีหัตถการ</th>
-                <th>Admit</th>
-                <th>Discharge</th>
-                <th>Refer</th>
-                <th>เสียชีวิต</th>
+                <th>Discharge type</th>
             </tr>
         </thead>
         <tbody></tbody>
